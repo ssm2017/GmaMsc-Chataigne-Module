@@ -1,0 +1,204 @@
+{
+    "device": {
+        "realtime": {
+            "name": "Real Time",
+            "int": -1,
+            "nice_value": "",
+            "value": -1
+        },
+        "send_to": {
+            "name": "Send To",
+            "int": 0,
+            "nice_value": "All",
+            "value": "all"
+        },
+        "id": {
+            "name": "Device ID",
+            "int": -1,
+            "nice_value": "All",
+            "value": 0
+        },
+        "msc": {
+            "name": "MSC",
+            "int": -1,
+            "nice_value": "Yes",
+            "value": -1
+        },
+        "command_format": {
+            "name": "Command Format",
+            "int": -1,
+            "nice_value": "All",
+            "value": "all"
+        },
+        "exec_type": {
+            "name": "Exec Type",
+            "int": 0,
+            "nice_value": "Default Only",
+            "value": "default_only"
+        }
+    },
+    "command": {
+        "name": "Command",
+        "int": -1,
+        "nice_value": "None",
+        "value": -1
+    },
+    "page": {
+        "id": {
+            "name": "Page ID",
+            "int": 0,
+            "nice_value": 0,
+            "value": 0
+        },
+        "id_1": {
+            "name": "Page ID 1",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "id_2": {
+            "name": "Page ID 2",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "id_3": {
+            "name": "Page ID 3",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        }
+    },
+    "exec": {
+        "id": {
+            "name": "Exec ID",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "id_1": {
+            "name": "Exec ID 1",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "id_2": {
+            "name": "Exec ID 2",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "id_3": {
+            "name": "Exec ID 3",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        }
+    },
+    "cue": {
+        "msb": {
+            "name": "Cue MSB",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "msb_1": {
+            "name": "Cue MSB 1",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "msb_2": {
+            "name": "Cue MSB 2",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "msb_3": {
+            "name": "Cue MSB 3",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "lsb": {
+            "name": "Cue LSB",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "lsb_1": {
+            "name": "Cue LSB 1",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "lsb_2": {
+            "name": "Cue LSB 2",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "lsb_3": {
+            "name": "Cue LSB 3",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        }
+    },
+    "time": {
+        "hour": {
+            "name": "Hour",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "minute": {
+            "name": "Minute",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "second": {
+            "name": "Second",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        },
+        "frame": {
+            "name": "Frame",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        }
+    },
+    "fader":
+    {
+        "level": {
+            "name": "Fader Value",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1,
+            "coarse": {
+                "name": "Fader Value Coarse",
+                "int": -1,
+                "nice_value": -1,
+                "value": -1
+            },
+            "fine": {
+                "name": "Fader Value Fine",
+                "int": -1,
+                "nice_value": -1,
+                "value": -1
+            }
+        }
+        
+    },
+    "macro": {
+        "id": {
+            "name": "Macro ID",
+            "int": -1,
+            "nice_value": -1,
+            "value": -1
+        }
+    }
+}

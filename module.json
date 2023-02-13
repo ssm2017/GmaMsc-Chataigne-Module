@@ -1,0 +1,363 @@
+	{
+		"name": "GmaMsc",
+		"type": "MIDI",
+		"path": "Hardware",
+		"version": "0.0.1",
+		"description": "Chataigne script to record and play grandma2/dot2 msc events",
+		"url": "https://github.com/ssm2017/GmaMsc-Chataigne-Module",
+		"downloadURL": "https://github.com/ssm2017/GmaMsc-Chataigne-Module/archive/refs/heads/master.zip",
+		"hasInput": true,
+		"hasOutput": true,
+		"defaults": {
+			"autoAdd": false
+		},
+		"alwaysShowValues": true,
+		"hideDefaultCommands": true,
+		"hideDefaultParameters": [
+			"useHierarchy",
+			"autoAdd",
+			"autoFeedback",
+			"octaveShift"
+		],
+		"scripts": [
+			"gmamsc.js"
+		],
+		"parameters": {
+			"Device parameters": {
+				"type": "Container",
+				"collapsed": true,
+				"Device Type": {
+					"type": "Enum",
+					"description": "Select if you are using a GrandMa or a dot2 desk",
+					"default": "grandma",
+					"options": {
+						"GrandMa":"grandma",
+						"Dot2":"dot2"
+					}
+				},
+				"Send To": {
+					"type": "Enum",
+					"description": "Select the device destination. All = all the devices; Group = all the devices in a group; Device = a specific device.",
+					"default": "all",
+					"options": {
+						"All": "all",
+						"Group": "group",
+						"Device": "device"
+					}
+				},
+				"Device": {
+					"type": "Integer",
+					"description": "The device id must be between 0 and 111.",
+					"default": 0,
+					"min": 0,
+					"max": 111,
+					"dependency": {
+						"source": "sendTo",
+						"check": "equals",
+						"value": "device",
+						"action": "show"
+					}
+				},
+				"Group": {
+					"type": "Integer",
+					"description": "The group id must be between 1 and 15.",
+					"default": 1,
+					"min": 1,
+					"max": 15,
+					"dependency": {
+						"source": "sendTo",
+						"check": "equals",
+						"value": "group",
+						"action": "show"
+					}
+				},
+				"Exec": {
+					"type": "Enum",
+					"description": "Select the execution type.",
+					"default": "default_only",
+					"options": {
+						"Default only": "default_only",
+						"Exec.Page": "exec_dot_page",
+						"Exec Page": "exec_space_page"
+					}
+				},
+				"Command Format": {
+					"type": "Enum",
+					"description": "Select the command format.",
+					"default": "all",
+					"options": {
+						"All": "all",
+						"General lighting": "general_lighting",
+						"Moving lights": "moving_lights"
+					}
+				}
+			},
+			"Module parameters": {
+				"type": "Container",
+				"collapsed": false,
+				"Log Sysex": {
+					"type": "Boolean",
+					"description": "Choose if you want to see a translation of the sysex.\nThe script logs must be activated.",
+					"default": false
+				},
+				"Listen": {
+					"type": "Enum",
+					"description": "Choose if you want to listen only the existing valmues or auto add values. (\"None\" = No capture; \"AASingle\" = Capture the first one only; \"AAAll\" = Capture everything.",
+					"default": "nothing",
+					"options": {
+						"None": "nothing",
+						"Listen": "listen",
+						"AASingle": "autoadd_single",
+						"AAAll": "autoadd_all"
+					}
+				}
+			}
+		},
+		"commands": {
+			"Generate Execs": {
+				"menu": "Generate",
+				"callback": "generateExecs",
+				"parameters": {
+					"Qty": {
+						"type": "Integer",
+						"description": "Generate Exec items in the custom variables.",
+						"default": 0,
+						"min": 0,
+						"max": 100
+					},
+					"Page": {
+						"type": "Integer",
+						"description": "Enter the page to create execs.",
+						"default": 0,
+						"min": 1,
+						"max": 999
+					},
+					"Start Exec": {
+						"type": "Integer",
+						"description": "Enter the starting exec.",
+						"default": 0,
+						"min": 1,
+						"max": 999
+					}
+				}
+			},
+			"Send Go": {
+				"menu": "Send Command",
+				"callback": "sendGo",
+				"parameters": {
+					"Cue msb": {
+						"type": "Integer",
+						"description": "The left part of the cue number in the executor. (for cue 1.2, this is 1)",
+						"default": 1,
+						"min": 1,
+						"max": 999
+					},
+					"Cue lsb": {
+						"type": "Integer",
+						"description": "The right part of the cue number in the executor. (for cue 1.2, this is 2)",
+						"default": 0,
+						"min": 0,
+						"max": 999
+					},
+					"PageId": {
+						"type": "Integer",
+						"description": "Page id between 1 and 999.",
+						"default": 1,
+						"min": 1,
+						"max": 999
+					},
+					"ExecId": {
+						"type": "Integer",
+						"description": "Executor id between 1 and 220",
+						"default": 1,
+						"min": 1,
+						"max": 220
+					},
+					"Use Time": {
+						"type": "Boolean",
+						"description": "You can add a time to move the fader.",
+						"default": false
+					},
+					"TimeHour": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 24,
+						"dependency": {
+							"source": "useTime",
+							"check": "equals",
+							"value": true,
+							"action": "show"
+						}
+					},
+					"TimeMinute": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 60,
+						"dependency": {
+							"source": "useTime",
+							"check": "equals",
+							"value": true,
+							"action": "show"
+						}
+					},
+					"TimeSecond": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 60,
+						"dependency": {
+							"source": "useTime",
+							"check": "equals",
+							"value": true,
+							"action": "show"
+						}
+					}
+				}
+			},
+			"Send Stop or Resume": {
+				"menu": "Send Command",
+				"callback": "sendStopResume",
+				"parameters": {
+					"Stop or Resume": {
+						"type": "Enum",
+						"description": "Select if you want to send a Stop command or a Resume command.",
+						"default": "stop",
+						"options": {
+							"Stop": "stop",
+							"Resume": "resume"
+						}
+					},
+					"PageId": {
+						"type": "Integer",
+						"description": "Page id between 1 and 999.",
+						"default": 1,
+						"min": 1,
+						"max": 999
+					},
+					"ExecId": {
+						"type": "Integer",
+						"description": "Executor id between 1 and 220",
+						"default": 1,
+						"min": 1,
+						"max": 220
+					}
+				}
+			},
+			"Send Set": {
+				"menu": "Send Command",
+				"callback": "sendSet",
+				"parameters": {
+					"FaderLevel": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 100
+					},
+					"PageId": {
+						"type": "Integer",
+						"description": "Page id between 1 and 127.",
+						"default": 1,
+						"min": 1,
+						"max": 127
+					},
+					"ExecId": {
+						"type": "Integer",
+						"description": "Executor id between 1 and 127",
+						"default": 1,
+						"min": 1,
+						"max": 127
+					},
+					"Use Time": {
+						"type": "Boolean",
+						"description": "You can add a time to move the fader.",
+						"default": false
+					},
+					"TimeHour": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 24,
+						"dependency": {
+							"source": "useTime",
+							"check": "equals",
+							"value": true,
+							"action": "show"
+						}
+					},
+					"TimeMinute": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 60,
+						"dependency": {
+							"source": "useTime",
+							"check": "equals",
+							"value": true,
+							"action": "show"
+						}
+					},
+					"TimeSecond": {
+						"type": "Integer",
+						"default": 0,
+						"min": 0,
+						"max": 60,
+						"dependency": {
+							"source": "useTime",
+							"check": "equals",
+							"value": true,
+							"action": "show"
+						}
+					}
+				}
+			},
+			"Send Fire": {
+				"menu": "Send Command",
+				"callback": "sendFire",
+				"parameters": {
+					"Macro": {
+						"type": "Integer",
+						"description": "The macro number to fire (between 1 and 127).",
+						"default": 1,
+						"min": 1,
+						"max": 127
+					}
+				}
+			},
+			"Send Go Off": {
+				"menu": "Send Command",
+				"callback": "sendGoOff",
+				"parameters": {
+					"Cue msb": {
+						"type": "Integer",
+						"description": "The left part of the cue number in the executor. (for cue 1.2, this is 1)",
+						"default": 0,
+						"min": 0,
+						"max": 999
+					},
+					"Cue lsb": {
+						"type": "Integer",
+						"description": "The right part of the cue number in the executor. (for cue 1.2, this is 2)",
+						"default": 0,
+						"min": 0,
+						"max": 999
+					},
+					"PageId": {
+						"type": "Integer",
+						"description": "Page id between 1 and 999.",
+						"default": 1,
+						"min": 1,
+						"max": 999
+					},
+					"ExecId": {
+						"type": "Integer",
+						"description": "Executor id between 1 and 220",
+						"default": 1,
+						"min": 1,
+						"max": 220
+					}
+				}
+			}
+		}
+	}
