@@ -416,6 +416,8 @@ function setCustomVariablesValue(page_id, exec_id, value, type, item_nice_name) 
   // define the item type
   var item_name = type;
   var item_type = "Int";
+  var int_max = 100;
+
   if (["Go", "Stop", "Resume", "Off"].contains(type)) {
     item_type = "Bool";
   }
@@ -430,6 +432,16 @@ function setCustomVariablesValue(page_id, exec_id, value, type, item_nice_name) 
     my_value_item = my_group.variables.addItem(item_type+ " Parameter");
     my_value = my_value_item.getChild(my_value_item.name);
     my_value.setName(my_value_nice_name);
+
+    if (["CueMsb", "CueLsb"].contains(type)) {
+      int_max = 999;
+    }
+    if (["Hour", "Minute", "second"].contains(type)) {
+      int_max = 60;
+    }
+    if (!["Go", "Stop", "Resume", "Off"].contains(type)) {
+      my_value.setRange(0,int_max);
+    }
   }
   else {
     my_value = my_value_item.getChild(my_value_item.name);
