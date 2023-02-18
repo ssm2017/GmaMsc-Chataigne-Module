@@ -429,6 +429,7 @@ function GetModuleValueControlAddress(names) {
   if (my_value == undefined) {
     return undefined;
   }
+  script.log(" : "+my_value.getControlAddress());
   return my_value.getControlAddress();
 }
 
@@ -507,7 +508,7 @@ function getCustomVariablesGroup(name, shortname) {
  * @param {string} item_nice_name 
  */
 function setCustomVariablesTarget(page_id, exec_id, type, group) {
-  var names = getNames(page_id, (exec_id+i), type);
+  var names = getNames(page_id, exec_id, type);
   var module_value_path = undefined;
   var my_value_item = group.variables.getItemWithName(names.container.shortname);
   if (my_value_item.name != names.container.shortname) {
@@ -515,7 +516,7 @@ function setCustomVariablesTarget(page_id, exec_id, type, group) {
     module_value_path = GetModuleValueControlAddress(names);
     // if not, create it  
     if (module_value_path == undefined) {
-      var new_value = setModuleValue(page_id, (exec_id+ i), type, 0);
+      var new_value = setModuleValue(page_id, exec_id, type, 0);
       module_value_path = new_value.getControlAddress();
     }
     // create if not exist
