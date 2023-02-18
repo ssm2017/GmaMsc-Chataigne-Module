@@ -120,7 +120,51 @@
 				"parameters": {
 					"Qty": {
 						"type": "Integer",
-						"description": "Generate Exec items in the custom variables.",
+						"description": "Quantity of items to generate.",
+						"default": 0,
+						"min": 0,
+						"max": 100
+					},
+					"Page": {
+						"type": "Integer",
+						"description": "Enter the page to create execs.",
+						"default": 0,
+						"min": 1,
+						"max": 999
+					},
+					"Start Exec": {
+						"type": "Integer",
+						"description": "Enter the starting exec.",
+						"default": 0,
+						"min": 1,
+						"max": 999
+					}
+				}
+			},
+			"Fill Custom Variables Group": {
+				"menu": "Generate",
+				"callback": "fillCustomVariablesGroup",
+				"parameters": {
+					"Name": {
+						"type":"String",
+						"description": "enter the name of the custom variables group.",
+						"default": "My Group"
+					},
+					"Type": {
+						"type": "Enum",
+						"description": "Generate a custom variables group with the same kind of items to use with multiplex",
+						"default": "FaderLevel",
+						"options": {
+							"FaderLevel":"FaderLevel",
+							"Go":"Go",
+							"Stop":"Stop",
+							"Resume":"Resume",
+							"Off":"Off"
+						}
+					},
+					"Qty": {
+						"type": "Integer",
+						"description": "Quantity of items to generate.",
 						"default": 0,
 						"min": 0,
 						"max": 100

@@ -3,6 +3,9 @@ var module_path = util.getEnvironmentVariable("USERPROFILE")+ "\\Documents\\Chat
 
 // sysex message values : this object is storing all the computed input sysex message
 var smv = {};
+
+var values_db = {};
+
 /**
  * Reset the smv values
  */
@@ -22,6 +25,22 @@ function resetSmv() {
 function asciiNbrToValue(int) {
   // yes, just remove the 3 (30=0; 39=9...)
   return parseInt(Integer.toHexString(int).substring(1,2))
+}
+
+/**
+ * Generate an object containing computed names for containers and parameters
+ * @param {int} page_id 
+ * @param {int} exec_id 
+ * @param {string} type 
+ * @returns {object}
+ */
+function getNames(page_id, exec_id, type) {
+  var names = {"container":{}, "parameter":{}};
+  names.container.shortname = "exec"+ page_id+ "_"+ exec_id;
+  names.container.name = "Exec "+ page_id+ "_"+ exec_id;
+  names.parameter.shortname = names.container.shortname+ type;
+  names.parameter.name = names.container.name+ " "+ type;
+  return names;
 }
 
 /* **************************
@@ -379,25 +398,102 @@ function faderLevelToCoarseFine(fader_level) {
 }
 
 /* **************************
-          Add values
+          Module values
   *************************** */
 
 /**
- * Get the custom variables group from page and exec
- * @param {int} page_id 
- * @param {int} exec_id 
+ * Returns the module values container if exists or create a new one
+ * @param {string}} name 
+ * @param {string} shortname 
  * @returns {object}
  */
-function getCustomVariablesGroupByPageExec(page_id, exec_id) {
-  // build names
-  var group_name = "exec"+ page_id+ "_"+ exec_id;
-  var group_nice_name = "Exec "+ page_id+ "_"+ exec_id;
-  // get the group
-  var my_group = root.customVariables.getItemWithName(group_name);
-  if (my_group.name != group_name) {
+function getModuleValuesContainer(name, shortname) {
+  var my_container = local.values.getChild(shortname);
+  if (my_container == undefined) {
+    // build a new container
+    my_container = local.values.addContainer(name);
+  }
+  return my_container;
+}
+
+/**
+ * Returns the module parameter path (control address)
+ * @param {object} names (the names generated with getNames())
+ * @returns {string}
+ */
+function GetModuleValueControlAddress(names) {
+  // get the container
+  var my_container = getModuleValuesContainer(names.container.name, names.container.shortname);
+  // get the parameter
+  var my_value = my_container.getChild(names.parameter.shortname);
+  if (my_value == undefined) {
+    return undefined;
+  }
+  return my_value.getControlAddress();
+}
+
+/**
+ * Return the module value parameter or create it if not exists
+ * @param {int} page_id 
+ * @param {int} exec_id 
+ * @param {string} type 
+ * @param {*} value 
+ * @returns {object}
+ */
+function setModuleValue(page_id, exec_id, type, value) {
+  // init the default max range for integers
+  var int_max = 100;
+  // get names
+  var names = getNames(page_id, exec_id, type);
+  // get the container
+  var my_container = getModuleValuesContainer(names.container.name, names.container.shortname);
+  // get the parameter
+  var my_value = my_container.getChild(names.parameter.shortname);
+  if (my_value == undefined) {
+    // create if not exist
+    if (["Go", "Stop", "Resume", "Off"].contains(type)) {
+      my_value = my_container.addBoolParameter(names.parameter.name, "", false);
+    }
+    else {
+      // manage range for integers
+      if (["CueMsb", "CueLsb"].contains(type)) {
+        int_max = 999;
+      }
+      if (["Hour", "Minute", "second"].contains(type)) {
+        int_max = 60;
+      }
+      my_value = my_container.addIntParameter(names.parameter.name, "", value, 0, int_max);
+    }
+    // make the value persistant between sessions
+    my_value.setAttribute("saveValueOnly",false);
+  }
+  if (["Go", "Stop", "Resume", "Off"].contains(type)) {
+    // simulate a trigger :)
+    my_value.set(true);
+    my_value.set(false);
+  }
+  else {
+    my_value.set(value);
+  }
+  return my_value;
+}
+
+/* **********************
+      Custom Vars
+  *********************** */
+
+/**
+ * Return or create a custom variables group
+ * @param {object} name (object generated from getNames())
+ * @param {*} shortname of the group
+ * @returns {object}
+ */
+function getCustomVariablesGroup(name, shortname) {
+  var my_group = root.customVariables.getItemWithName(shortname);
+  if (my_group.name != shortname) {
     // build a new group
-    my_group = root.customVariables.addItem(group_name);
-    my_group.setName(group_nice_name);
+    my_group = root.customVariables.addItem(shortname);
+    my_group.setName(name);
   }
   return my_group;
 }
@@ -410,116 +506,80 @@ function getCustomVariablesGroupByPageExec(page_id, exec_id) {
  * @param {string} type 
  * @param {string} item_nice_name 
  */
-function setCustomVariablesValue(page_id, exec_id, value, type, item_nice_name) {
-  // get the group
-  var my_group = getCustomVariablesGroupByPageExec(page_id, exec_id);
-  // define the item type
-  var item_name = type;
-  var item_type = "Int";
-  var int_max = 100;
-
-  if (["Go", "Stop", "Resume", "Off"].contains(type)) {
-    item_type = "Bool";
-  }
-  // build some names
-  var my_value = {};
-  var my_value_name = "exec"+ page_id+ "_"+exec_id+ item_name;
-  var my_value_nice_name = "Exec "+ page_id+ "_"+ exec_id+ " "+ item_nice_name;
-
-  var my_value_item = my_group.variables.getItemWithName(my_value_name);
-  if (my_value_item.name != my_value_name) {
+function setCustomVariablesTarget(page_id, exec_id, type, group) {
+  var names = getNames(page_id, (exec_id+i), type);
+  var module_value_path = undefined;
+  var my_value_item = group.variables.getItemWithName(names.container.shortname);
+  if (my_value_item.name != names.container.shortname) {
+    // check if the value exists in the module
+    module_value_path = GetModuleValueControlAddress(names);
+    // if not, create it  
+    if (module_value_path == undefined) {
+      var new_value = setModuleValue(page_id, (exec_id+ i), type, 0);
+      module_value_path = new_value.getControlAddress();
+    }
     // create if not exist
-    my_value_item = my_group.variables.addItem(item_type+ " Parameter");
+    my_value_item = group.variables.addItem("Target Parameter");
     my_value = my_value_item.getChild(my_value_item.name);
-    my_value.setName(my_value_nice_name);
-
-    if (["CueMsb", "CueLsb"].contains(type)) {
-      int_max = 999;
-    }
-    if (["Hour", "Minute", "second"].contains(type)) {
-      int_max = 60;
-    }
-    if (!["Go", "Stop", "Resume", "Off"].contains(type)) {
-      my_value.setRange(0,int_max);
-    }
+    my_value.setName(names.parameter.name);
   }
   else {
     my_value = my_value_item.getChild(my_value_item.name);
   }
-  if (["Go", "Stop", "Resume", "Off"].contains(type)) {
-    my_value.set(true);
-    my_value.set(false);
-  }
-  else {
-    my_value.set(value);
-  }
-  my_group.variables.reorderItems();
+  my_value.set(module_value_path);
+  return my_value;
 }
 
+/* **********************
+        Generators
+  *********************** */
+
 /**
- * Generate some custom variables values
+ * Generate Execs in custom vars so in module vars too
  * @param {int} qty 
  * @param {int} page_id 
  * @param {int} exec_id 
  */
 function generateExecs(qty, page_id, exec_id) {
   if (qty < 1) return;
-  var new_item = {};
-  var new_item_value = {};
+  var group = undefined;
   for (i=0; i<qty; i++) {
-    // add go
-    setCustomVariablesValue(page_id, (exec_id+i), false, "Go", "Go");
-    // add stop
-    setCustomVariablesValue(page_id, (exec_id+i), false, "Stop", "Stop");
-    // add resume
-    setCustomVariablesValue(page_id, (exec_id+i), false, "Resume", "Resume");
-    // add off
-    setCustomVariablesValue(page_id, (exec_id+i), false, "Off", "Off");
-    // add fader level
-    setCustomVariablesValue(page_id, (exec_id+i), 0, "FaderLevel", "Fader Level");
-    // add cue msb
-    setCustomVariablesValue(page_id, (exec_id+i), 0, "CueMsb", "Cue Msb");
-    // add cue lsb
-    setCustomVariablesValue(page_id, (exec_id+i), 0, "CueLsb", "Cue Lsb");
+    // set the level
+    exec_id = exec_id+ i;
+    // get the group
+    group = getCustomVariablesGroup("Exec "+page_id+ "_"+ exec_id , "Exec "+page_id+ "_"+ exec_id);
+    // add items
+    setCustomVariablesTarget(page_id, exec_id, "Go", group);
+    setCustomVariablesTarget(page_id, exec_id, "Stop", group);
+    setCustomVariablesTarget(page_id, exec_id, "Resume", group);
+    setCustomVariablesTarget(page_id, exec_id, "Off", group);
+    setCustomVariablesTarget(page_id, exec_id, "FaderLevel", group);
+    setCustomVariablesTarget(page_id, exec_id, "CueMsb", group);
+    setCustomVariablesTarget(page_id, exec_id, "CueLsb", group);
   }
 }
 
 /**
- * Parse received data and fill parameters
- * @param {array} data (sysex data received knowing that the first (f0) and the last one (f7) are truncated)
+ * Generate custom vars group with the same kind of items (ex: i want 6 fader levels only)
+ * @param {string} name The name of the group
+ * @param {int} type Type of items
+ * @param {int} qty 
+ * @param {int} page_id 
+ * @param {int} exec_id 
+ * @returns 
  */
-function autoAdd(data) {
-  // go
-  if (data[4] == 1) {
-    setCustomVariablesValue(smv.page.id.value, smv.exec.id.value, null, "Go", "Go");
-    setCustomVariablesValue(smv.page.id.value, smv.exec.id.value, smv.cue.msb.value, "CueMsb", "Cue Msb");
-    setCustomVariablesValue(smv.page.id.value, smv.exec.id.value, smv.cue.lsb.value, "CueLsb", "Cue Lsb");
-  }
-  // stop
-  if (data[4] == 2) {
-    setCustomVariablesValue(smv.page.id.int, smv.exec.id.int, null, "Stop", "Stop");
-  }
-  // resume
-  if (data[4] == 3) {
-    setCustomVariablesValue(smv.page.id.int, smv.exec.id.int, null, "Resume", "Resume");
-  }
-  // set
-  if (data[4] == 6) {
-    setCustomVariablesValue(smv.page.id.int, smv.exec.id.int, smv.fader.level.int, "FaderLevel", "Fader Level");
-  }
-  // off
-  if (data[4] == 10 || data[4] == 11) {
-    setCustomVariablesValue(smv.page.id.int, smv.exec.id.int, null, "Off", "Off");
-    setCustomVariablesValue(smv.page.id.value, smv.exec.id.value, 0, "CueMsb", "Cue Msb");
-    setCustomVariablesValue(smv.page.id.value, smv.exec.id.value, 0, "CueLsb", "Cue Lsb");
-  }
+function fillCustomVariablesGroup(name, type, qty, page_id, exec_id) {
+  if (qty < 1) return;
 
-  // disable auto add if necessary
-  if (listen == "autoadd_single") {
-    local.parameters.moduleParameters.listen.set("nothing");
+  // get the group
+  var group = getCustomVariablesGroup(name, name);
+
+  // the loop
+  for (i=0; i<qty; i++) {
+    setCustomVariablesTarget(page_id, (exec_id+i), type, group);
   }
 }
-
+    
 /* **********************
       Send callbacks
   *********************** */
@@ -825,6 +885,46 @@ function sendGoOff(cue_msb, cue_lsb, page_id, exec_id) {
 }
 
 /* **********************
+        Auto Add
+  *********************** */
+
+/**
+ * Parse received data and fill parameters
+ * @param {array} data (sysex data received knowing that the first (f0) and the last one (f7) are truncated)
+ */
+function autoAdd(data) {
+  // go
+  if (data[4] == 1) {
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "Go", null);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueMsb", smv.cue.msb.value);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueLsb", smv.cue.lsb.value);
+  }
+  // stop
+  if (data[4] == 2) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "Stop", null);
+  }
+  // resume
+  if (data[4] == 3) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "Resume", null);
+  }
+  // set
+  if (data[4] == 6) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "FaderLevel", smv.fader.level.int);
+  }
+  // off
+  if (data[4] == 10 || data[4] == 11) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "Off", null);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueMsb", 0);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueLsb", 0);
+  }
+
+  // disable auto add if necessary
+  if (listen == "autoadd_single") {
+    local.parameters.moduleParameters.listen.set("nothing");
+  }
+}
+
+/* **********************
     Chataigne callbacks
   *********************** */
 
@@ -835,19 +935,16 @@ function sendGoOff(cue_msb, cue_lsb, page_id, exec_id) {
 function sysExEvent(data) {
   resetSmv();
   parseSysex(data);
-  if (local.parameters.moduleParameters.logSysex.get())logInputSysex(data);
+  if (local.parameters.moduleParameters.logSysex.get()) logInputSysex(data);
   var listen = local.parameters.moduleParameters.listen.get();
-  if (listen != "nothing" && listen != "")autoAdd(data, listen);
+  if (listen != "nothing" && listen != "") autoAdd(data, listen);
 }
 
 /**
  * Chataigne method runned when the script is loaded
  */
 function init() {
-  // Ben told me that is a wrong id to delete containers so i will just collapse them first
-  // local.values.removeContainer("infos");
-  // local.values.removeContainer("tempo");
-  // local.values.removeContainer("mtc");
+  // Ben told me that it is a bad idea to delete these containers so i will just collapse them first
   local.values.getChild("infos").setCollapsed(true);
   local.values.getChild("tempo").setCollapsed(true);
   local.values.getChild("mtc").setCollapsed(true);
