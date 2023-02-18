@@ -25,7 +25,20 @@ This module is getting values from the desk and can send values to the desk to a
 ### Send messages to the desk
 To send messages, you can use one of the integrated callbacks.
 
-### Generate values
-If you want to generate multiple values without using the desk you can use this callback.
+### Generate Execs
+Generate Execs targets in custom vars groups so also in the module values if not exist.
+If you ask to generate 10 execs starting at page 1 exec 1, it will create :
+10 custom variables groups, each one containing :
+fader level
+go
+stop
+resume
+off
+cue msb
+cue lsb
+and the same inside the module's value container.
 
-Once your values are captured, you can set "Listen" to "listen" to update the values.
+### Fill Custom Variables Group
+Generate value targets in the same group and the same kind.
+if you ask to generate 10 fader levels starting at page 1 exec 1 in the group named "as you like", it will create only one custom variables group containing 10 fader levels.
+And on the module's value container, they will be created too if not exist but organized in page and exec id containers.
