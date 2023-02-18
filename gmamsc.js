@@ -410,6 +410,7 @@ function faderLevelToCoarseFine(fader_level) {
 function getModuleValuesContainer(name, shortname) {
   var my_container = local.values.getChild(shortname);
   if (my_container == undefined) {
+    if (local.parameters.moduleParameters.listen.get() == "listen") return undefined; 
     // build a new container
     my_container = local.values.addContainer(name);
   }
@@ -448,9 +449,11 @@ function setModuleValue(page_id, exec_id, type, value) {
   var names = getNames(page_id, exec_id, type);
   // get the container
   var my_container = getModuleValuesContainer(names.container.name, names.container.shortname);
+  if (my_container == undefined && local.parameters.moduleParameters.listen.get() == "listen") return undefined; 
   // get the parameter
   var my_value = my_container.getChild(names.parameter.shortname);
   if (my_value == undefined) {
+    if (local.parameters.moduleParameters.listen.get() == "listen") return undefined; 
     // create if not exist
     if (["Go", "Stop", "Resume", "Off"].contains(type)) {
       my_value = my_container.addBoolParameter(names.parameter.name, "", false);
@@ -477,6 +480,47 @@ function setModuleValue(page_id, exec_id, type, value) {
     my_value.set(value);
   }
   return my_value;
+}
+
+/* **********************
+        Auto Add
+  *********************** */
+
+/**
+ * Parse received data and fill parameters
+ * @param {array} data (sysex data received knowing that the first (f0) and the last one (f7) are truncated)
+ * @param {object}
+ */
+function autoAdd(data, listen) {
+  // go
+  if (data[4] == 1) {
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "Go", null);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueMsb", smv.cue.msb.value);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueLsb", smv.cue.lsb.value);
+  }
+  // stop
+  if (data[4] == 2) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "Stop", null);
+  }
+  // resume
+  if (data[4] == 3) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "Resume", null);
+  }
+  // set
+  if (data[4] == 6) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "FaderLevel", smv.fader.level.int);
+  }
+  // off
+  if (data[4] == 10 || data[4] == 11) {
+    setModuleValue(smv.page.id.int, smv.exec.id.int, "Off", null);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueMsb", 0);
+    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueLsb", 0);
+  }
+
+  // disable auto add if necessary
+  if (listen == "autoadd_single") {
+    local.parameters.moduleParameters.listen.set("nothing");
+  }
 }
 
 /* **********************
@@ -523,6 +567,8 @@ function setCustomVariablesTarget(page_id, exec_id, type, group) {
     my_value_item = group.variables.addItem("Target Parameter");
     my_value = my_value_item.getChild(my_value_item.name);
     my_value.setName(names.parameter.name);
+    my_value.setAttribute("targetType", "controllable");
+    my_value.setAttribute("showParameters", true);
   }
   else {
     my_value = my_value_item.getChild(my_value_item.name);
@@ -883,46 +929,6 @@ function sendGoOff(cue_msb, cue_lsb, page_id, exec_id) {
   // faya !!
   if (local.parameters.moduleParameters.logSysex.get())logSysex(sysex);
   local.sendSysex(sysex);
-}
-
-/* **********************
-        Auto Add
-  *********************** */
-
-/**
- * Parse received data and fill parameters
- * @param {array} data (sysex data received knowing that the first (f0) and the last one (f7) are truncated)
- */
-function autoAdd(data) {
-  // go
-  if (data[4] == 1) {
-    setModuleValue(smv.page.id.value, smv.exec.id.value, "Go", null);
-    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueMsb", smv.cue.msb.value);
-    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueLsb", smv.cue.lsb.value);
-  }
-  // stop
-  if (data[4] == 2) {
-    setModuleValue(smv.page.id.int, smv.exec.id.int, "Stop", null);
-  }
-  // resume
-  if (data[4] == 3) {
-    setModuleValue(smv.page.id.int, smv.exec.id.int, "Resume", null);
-  }
-  // set
-  if (data[4] == 6) {
-    setModuleValue(smv.page.id.int, smv.exec.id.int, "FaderLevel", smv.fader.level.int);
-  }
-  // off
-  if (data[4] == 10 || data[4] == 11) {
-    setModuleValue(smv.page.id.int, smv.exec.id.int, "Off", null);
-    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueMsb", 0);
-    setModuleValue(smv.page.id.value, smv.exec.id.value, "CueLsb", 0);
-  }
-
-  // disable auto add if necessary
-  if (listen == "autoadd_single") {
-    local.parameters.moduleParameters.listen.set("nothing");
-  }
 }
 
 /* **********************
