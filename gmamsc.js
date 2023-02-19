@@ -588,6 +588,10 @@ function setCustomVariablesTarget(page_id, exec_id, type, group) {
  * @param {int} exec_id 
  */
 function generateExecs(qty, page_id, exec_id) {
+  if (local.parameters.moduleParameters.listen.get() == "listen") {
+    util.showMessageBox("Listen activated", "To use generators, you need to disable \"Listen\"", "warning", "Got it");
+    return;
+  }
   if (qty < 1) return;
   var group = undefined;
   for (i=0; i<qty; i++) {
@@ -616,6 +620,10 @@ function generateExecs(qty, page_id, exec_id) {
  * @returns 
  */
 function fillCustomVariablesGroup(name, type, qty, page_id, exec_id) {
+  if (local.parameters.moduleParameters.listen.get() == "listen") {
+    util.showMessageBox("Listen activated", "To use generators, you need to disable \"Listen\"", "warning", "Got it");
+    return;
+  }
   if (qty < 1) return;
 
   // get the group
