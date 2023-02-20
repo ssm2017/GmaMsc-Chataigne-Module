@@ -1,0 +1,24 @@
+{
+  "parameters": [
+    {
+      "value": 55,
+      "controlMode": 2,
+      "reference": {
+        "value": "/modules/gmaMsc/values/exec1_1/exec1_1FaderLevel",
+        "controlAddress": "/reference"
+      },
+      "hexMode": false,
+      "controlAddress": "/newIntParameter",
+      "feedbackOnly": false,
+      "type": "Integer",
+      "niceName": "New Int Parameter",
+      "customizable": true,
+      "removable": false,
+      "description": "Custom control of type Integer",
+      "hideInEditor": false
+    }
+  ],
+  "niceName": "New Int Parameter",
+  "editorIsCollapsed": true,
+  "type": "Int Parameter"
+}

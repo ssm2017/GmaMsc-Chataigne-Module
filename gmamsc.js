@@ -43,6 +43,66 @@ function getNames(page_id, exec_id, type) {
   return names;
 }
 
+/**
+ * Generate a link to a module's value
+ * @param {object} parent 
+ * @param {string} module_value_path 
+ * @param {string} type 
+ * @param {string} shortname 
+ * @param {string} name 
+ * @param {string} description 
+ * @returns the parameter containing the link
+ */
+function generateLinkToModuleValue(parent, module_value_path, type, shortname, name, description) {
+
+  var int_max = 100;
+  if (["CueMsb", "CueLsb"].contains(type)) {
+    int_max = 999;
+  }
+  if (["Hour", "Minute", "second"].contains(type)) {
+    int_max = 60;
+  }
+
+  var param_type = "Int Parameter";
+  var param_value_type = "Integer";
+  if (["Go", "Stop", "Resume", "Off"].contains(type)) {
+    param_type = "Bool Parameter";
+    param_value_type = "Boolean";
+  }
+  var my_value_item = parent.addItem(param_type);
+  var my_value = my_value_item.getChild(my_value_item.name);
+  if (!["Go", "Stop", "Resume", "Off"].contains(type)) {
+    my_value.setRange(0,int_max);
+  }
+
+  my_value_item.loadJSONData({
+    "parameters": [
+      {
+        "value": 0,
+        "controlMode": 2,
+        "reference": {
+          "value": module_value_path,
+          "controlAddress": "/reference"
+        },
+        "hexMode": false,
+        "controlAddress": "/"+ shortname,
+        "feedbackOnly": false,
+        "type": param_value_type,
+        "niceName": name,
+        "customizable": true,
+        "removable": false,
+        "description": description,
+        "hideInEditor": false
+      }
+    ],
+    "niceName": name,
+    "editorIsCollapsed": true,
+    "type": param_type
+  });
+
+  return my_value_item;
+}
+
 /* **************************
       Parse sysex values
   *************************** */
@@ -430,7 +490,6 @@ function GetModuleValueControlAddress(names) {
   if (my_value == undefined) {
     return undefined;
   }
-  script.log(" : "+my_value.getControlAddress());
   return my_value.getControlAddress();
 }
 
@@ -555,26 +614,16 @@ function setCustomVariablesTarget(page_id, exec_id, type, group) {
   var names = getNames(page_id, exec_id, type);
   var module_value_path = undefined;
   var my_value_item = group.variables.getItemWithName(names.container.shortname);
-  if (my_value_item.name != names.container.shortname) {
-    // check if the value exists in the module
-    module_value_path = GetModuleValueControlAddress(names);
-    // if not, create it  
-    if (module_value_path == undefined) {
-      var new_value = setModuleValue(page_id, exec_id, type, 0);
-      module_value_path = new_value.getControlAddress();
-    }
-    // create if not exist
-    my_value_item = group.variables.addItem("Target Parameter");
-    my_value = my_value_item.getChild(my_value_item.name);
-    my_value.setName(names.parameter.name);
-    my_value.setAttribute("targetType", "controllable");
-    my_value.setAttribute("showParameters", true);
+  if (my_value_item.name == names.container.shortname) return;
+  // check if the value exists in the module
+  module_value_path = GetModuleValueControlAddress(names);
+  // if not, create it  
+  if (module_value_path == undefined) {
+    var new_value = setModuleValue(page_id, exec_id, type, 0);
+    module_value_path = new_value.getControlAddress();
   }
-  else {
-    my_value = my_value_item.getChild(my_value_item.name);
-  }
-  my_value.set(module_value_path);
-  return my_value;
+  // create if not exist
+  generateLinkToModuleValue(group.variables, module_value_path, type, names.parameter.shortname, names.parameter.name, "");
 }
 
 /* **********************
