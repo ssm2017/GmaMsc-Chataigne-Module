@@ -441,6 +441,9 @@ function coarseFineToFaderLevel(coarse, fine) {
  * @returns {array} 0=coarse / 1=fine
  */
 function faderLevelToCoarseFine(fader_level) {
+  if (fader_level == 0) return [0 ,0];
+  if (fader_level == 100) return [127, 127];
+
   // multiply by 1.28
   var temp_coarse = fader_level * 1.28;
 
