@@ -72,9 +72,9 @@
     "exec": {
         "id": {
             "name": "Exec ID",
-            "int": -1,
-            "nice_value": -1,
-            "value": -1
+            "int": 0,
+            "nice_value": 0,
+            "value": 0
         },
         "id_1": {
             "name": "Exec ID 1",
@@ -98,9 +98,9 @@
     "cue": {
         "msb": {
             "name": "Cue MSB",
-            "int": -1,
-            "nice_value": -1,
-            "value": -1
+            "int": 0,
+            "nice_value": 0,
+            "value": 0
         },
         "msb_1": {
             "name": "Cue MSB 1",
@@ -122,9 +122,9 @@
         },
         "lsb": {
             "name": "Cue LSB",
-            "int": -1,
-            "nice_value": -1,
-            "value": -1
+            "int": 0,
+            "nice_value": 0,
+            "value": 0
         },
         "lsb_1": {
             "name": "Cue LSB 1",

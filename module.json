@@ -129,14 +129,14 @@
 						"type": "Integer",
 						"description": "Enter the page to create execs.",
 						"default": 0,
-						"min": 1,
+						"min": 0,
 						"max": 999
 					},
 					"Start Exec": {
 						"type": "Integer",
 						"description": "Enter the starting exec.",
 						"default": 0,
-						"min": 1,
+						"min": 0,
 						"max": 999
 					}
 				}
@@ -173,14 +173,14 @@
 						"type": "Integer",
 						"description": "Enter the page to create execs.",
 						"default": 0,
-						"min": 1,
+						"min": 0,
 						"max": 999
 					},
 					"Start Exec": {
 						"type": "Integer",
 						"description": "Enter the starting exec.",
 						"default": 0,
-						"min": 1,
+						"min": 0,
 						"max": 999
 					}
 				}
@@ -192,8 +192,8 @@
 					"Cue msb": {
 						"type": "Integer",
 						"description": "The left part of the cue number in the executor. (for cue 1.2, this is 1)",
-						"default": 1,
-						"min": 1,
+						"default": 0,
+						"min": 0,
 						"max": 999
 					},
 					"Cue lsb": {
@@ -205,16 +205,16 @@
 					},
 					"PageId": {
 						"type": "Integer",
-						"description": "Page id between 1 and 999.",
-						"default": 1,
-						"min": 1,
+						"description": "Page id between 0 and 999.",
+						"default": 0,
+						"min": 0,
 						"max": 999
 					},
 					"ExecId": {
 						"type": "Integer",
-						"description": "Executor id between 1 and 220",
-						"default": 1,
-						"min": 1,
+						"description": "Executor id between 0 and 220",
+						"default": 0,
+						"min": 0,
 						"max": 220
 					},
 					"Use Time": {
@@ -275,16 +275,16 @@
 					},
 					"PageId": {
 						"type": "Integer",
-						"description": "Page id between 1 and 999.",
-						"default": 1,
-						"min": 1,
+						"description": "Page id between 0 and 999.",
+						"default": 0,
+						"min": 0,
 						"max": 999
 					},
 					"ExecId": {
 						"type": "Integer",
-						"description": "Executor id between 1 and 220",
-						"default": 1,
-						"min": 1,
+						"description": "Executor id between 0 and 220",
+						"default": 0,
+						"min": 0,
 						"max": 220
 					}
 				}
@@ -301,16 +301,16 @@
 					},
 					"PageId": {
 						"type": "Integer",
-						"description": "Page id between 1 and 127.",
-						"default": 1,
-						"min": 1,
+						"description": "Page id between 0 and 127.",
+						"default": 0,
+						"min": 0,
 						"max": 127
 					},
 					"ExecId": {
 						"type": "Integer",
-						"description": "Executor id between 1 and 127",
-						"default": 1,
-						"min": 1,
+						"description": "Executor id between 0 and 127",
+						"default": 0,
+						"min": 0,
 						"max": 127
 					},
 					"Use Time": {
@@ -389,16 +389,16 @@
 					},
 					"PageId": {
 						"type": "Integer",
-						"description": "Page id between 1 and 999.",
-						"default": 1,
-						"min": 1,
+						"description": "Page id between 0 and 999.",
+						"default": 0,
+						"min": 0,
 						"max": 999
 					},
 					"ExecId": {
 						"type": "Integer",
-						"description": "Executor id between 1 and 220",
-						"default": 1,
-						"min": 1,
+						"description": "Executor id between 0 and 220",
+						"default": 0,
+						"min": 0,
 						"max": 220
 					}
 				}
