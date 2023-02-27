@@ -2,7 +2,7 @@
 		"name": "GmaMsc",
 		"type": "MIDI",
 		"path": "Hardware",
-		"version": "0.0.1",
+		"version": "0.0.3",
 		"description": "Chataigne script to record and play grandma2/dot2 msc events",
 		"url": "https://github.com/ssm2017/GmaMsc-Chataigne-Module",
 		"downloadURL": "https://github.com/ssm2017/GmaMsc-Chataigne-Module/archive/refs/heads/master.zip",
