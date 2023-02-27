@@ -2,15 +2,14 @@
 var module_path = util.getEnvironmentVariable("USERPROFILE")+ "\\Documents\\Chataigne\\modules\\gmamsc-chataigne-module\\";
 
 // sysex message values : this object is storing all the computed input sysex message
-var smv = {};
-
-var values_db = {};
+var smv = util.readFile(module_path+ "smv.json", true);
+var smv_reset = smv;
 
 /**
  * Reset the smv values
  */
 function resetSmv() {
-  smv = util.readFile(module_path+"smv.json", true);
+  smv = smv_reset;
 }
 
 /* **********************
