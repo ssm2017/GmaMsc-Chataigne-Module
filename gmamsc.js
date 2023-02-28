@@ -1,8 +1,5 @@
-// store the module path because path is changed when saving/loading .noisette file
-var module_path = util.getEnvironmentVariable("USERPROFILE")+ "\\Documents\\Chataigne\\modules\\gmamsc-chataigne-module\\";
-
 // sysex message values : this object is storing all the computed input sysex message
-var smv = util.readFile(module_path+ "smv.json", true);
+var smv = util.readFile("smv.json", true);
 var smv_reset = smv;
 
 /**
@@ -580,7 +577,7 @@ function autoAdd(data, listen) {
 
   // disable auto add if necessary
   if (listen == "autoadd_single") {
-    local.parameters.moduleParameters.listen.set("nothing");
+    local.parameters.moduleParameters.listen.setData("nothing");
   }
 }
 
