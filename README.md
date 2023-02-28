@@ -1,3 +1,6 @@
+NOTE : This module will not be updated : you should better use : [MidiMSC-Chataigne-Module](https://github.com/ssm2017/MidiMSC-Chataigne-module)
+
+
 # Chataigne grandma2 msc
 This script is a custom hardware module to use with the software [Chataigne](http://benjamin.kuperberg.fr/chataigne) and the lighting desk [GrandMa2](https://www.malighting.com/product-archive/products/grandma2/) or [Dot2](https://www.malighting.com/product-archive/products/dot2/).
 
